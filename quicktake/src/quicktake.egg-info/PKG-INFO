@@ -1,9 +1,10 @@
 Metadata-Version: 2.1
 Name: quicktake
-Version: 0.0.10
+Version: 0.0.11
 Summary: Off-the-shelf computer vision ML models. Yolov5, gender and age determination.
 Author: Zach Wolpe
 Author-email: zachcolinwolpe@gmail.com
+Project-URL: Source code, https://github.com/ZachWolpe/QuickTake
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -16,7 +17,10 @@ License-File: LICENSE
 Off-the-shelf computer vision ML models. Yolov5, gender and age determination.
 
 
----
-: Zach Wolpe
-: zach.wolpe@medibio.com.au
----
+## Getting Started
+
+## Resources
+
+## Future
+
+Many sub-modules are in the pipeline. If you wish to contribute, please email me @zachcolinwolpe@gmail.com!
