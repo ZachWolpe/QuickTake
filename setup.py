@@ -4,11 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
-
+project_urls = {
+    "Source code" : "https://github.com/ZachWolpe/QuickTake"
+}
 
 setuptools.setup(
     name                            = "quicktake",
-    version                         = "0.0.10",
+    version                         = "0.0.11",
     author                          = "Zach Wolpe",
     author_email                    = "zachcolinwolpe@gmail.com",
     description                     = "Off-the-shelf computer vision ML models. Yolov5, gender and age determination.",
@@ -23,6 +25,7 @@ setuptools.setup(
     python_requires                 = '>=3.8',
     py_modules                      = ["quicktake"],
     package_dir                     = {'':"quicktake/src"},
+    project_urls                    = project_urls,
     install_requires                =[
         "torch>=2.0.1",
         "torchvision>=0.15.2",

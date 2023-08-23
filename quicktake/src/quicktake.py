@@ -200,46 +200,46 @@ class QuickLook:
 
 
 # example usage
-if __name__ == '__main__':
-    QL = QuickLook()
-    # QL.inference('None', ['genderX'])
-    # QL.LaunchCamera()
-    QL.launchStream()
+# if __name__ == '__main__':
+#     QL = QuickLook()
+#     # QL.inference('None', ['genderX'])
+#     # QL.LaunchCamera()
+#     QL.launchStream()
 
-if False:
-    # test inputs
-    image_size  = 64
-    X           = torch.randn(3, 224, 224, requires_grad=False)#.to(tgp.device)
-    X_yolo      = torch.randn(1, 3, 224, 224, requires_grad=False)#.to(tgp.device)
-    image_path  = './data/random/IMG_0431.jpg'
-    image_paths = './data/random/'
+# if False:
+#     # test inputs
+#     image_size  = 64
+#     X           = torch.randn(3, 224, 224, requires_grad=False)#.to(tgp.device)
+#     X_yolo      = torch.randn(1, 3, 224, 224, requires_grad=False)#.to(tgp.device)
+#     image_path  = './data/random/IMG_0431.jpg'
+#     image_paths = './data/random/'
 
-    print('............................................')
-    print('using torch.Tensor')
-    res, ti = QL.gender(X, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.yolov5(X_yolo, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.age(X, new_init=True)
-    print(res); print(ti)
-    print('............................................')
+#     print('............................................')
+#     print('using torch.Tensor')
+#     res, ti = QL.gender(X, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.yolov5(X_yolo, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.age(X, new_init=True)
+#     print(res); print(ti)
+#     print('............................................')
 
-    print('............................................')
-    print('using image path')
-    res, ti = QL.gender(image_path, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.yolov5(image_path, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.age(image_path, new_init=True)
-    print(res); print(ti)
-    print('............................................')
+#     print('............................................')
+#     print('using image path')
+#     res, ti = QL.gender(image_path, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.yolov5(image_path, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.age(image_path, new_init=True)
+#     print(res); print(ti)
+#     print('............................................')
 
-    print('............................................')
-    print('using image directory')
-    res, ti = QL.gender(image_paths, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.yolov5(image_paths, new_init=True)
-    print(res); print(ti)
-    res, ti = QL.age(image_paths, new_init=True)
-    print(res); print(ti)
-    print('............................................')
+#     print('............................................')
+#     print('using image directory')
+#     res, ti = QL.gender(image_paths, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.yolov5(image_paths, new_init=True)
+#     print(res); print(ti)
+#     res, ti = QL.age(image_paths, new_init=True)
+#     print(res); print(ti)
+#     print('............................................')
