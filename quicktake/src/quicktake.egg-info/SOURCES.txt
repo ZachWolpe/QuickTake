@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+quicktake/src/quicktake.py
+quicktake/src/quicktake.egg-info/PKG-INFO
+quicktake/src/quicktake.egg-info/SOURCES.txt
+quicktake/src/quicktake.egg-info/dependency_links.txt
+quicktake/src/quicktake.egg-info/requires.txt
+quicktake/src/quicktake.egg-info/top_level.txt

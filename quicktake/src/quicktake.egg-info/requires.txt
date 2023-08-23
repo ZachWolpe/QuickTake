@@ -1,0 +1,11 @@
+torch>=2.0.1
+torchvision>=0.15.2
+torchviz>=0.0.2
+tqdm>=4.66.1
+pandas>=2.0.3
+numpy>=1.24.3
+opencv-python>=4.8.0
+plotly>=5.16.1
+plotly-express>=0.4.1
+matplotlib>=3.7.2
+pillow>=10.0.0
