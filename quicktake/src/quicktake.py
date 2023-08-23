@@ -1,6 +1,6 @@
 '''
 ========================================================
-QuickLook!
+QuickTake!
 
 This script houses the package build.
 
@@ -10,6 +10,7 @@ This script houses the package build.
 ========================================================
 '''
 
+
 from model_architectures.AgeBuild       import *
 from model_architectures.SSRNet         import *
 from model_architectures.GenderBuild    import *
@@ -18,7 +19,7 @@ from modules.cv_helpers                 import *
 from modules.torch_helpers              import *
 
 
-class QuickLook:
+class QuickTake:
     # inherit models
     available_models_       = ['gender', 'age', 'yolov5']
     available_input_types   = [torch.Tensor, np.ndarray, str, list]
@@ -34,10 +35,10 @@ class QuickLook:
         Test the datatype passed to inference.
         """
         if image is not None:
-            assert type(image) in QuickLook.available_input_types, f'Image type not supported! Must be torch.Tensor, str, or list[str]. Got {type(image)}'        
+            assert type(image) in QuickTake.available_input_types, f'Image type not supported! Must be torch.Tensor, str, or list[str]. Got {type(image)}'        
         
         if model is not None:
-            assert model.lower() in QuickLook.available_models_, f'Unsupported model specification \"{model}\"! Must be one of: {QuickLook.available_models_}'
+            assert model.lower() in QuickTake.available_models_, f'Unsupported model specification \"{model}\"! Must be one of: {QuickTake.available_models_}'
         
         return True
 
@@ -74,7 +75,7 @@ class QuickLook:
         _model  = 'gender'
         _engine = TorchEngineGenderPrediction
         if self.verbose: print(f'Fitting {_model} model.')
-        QuickLook._inference_check(image, _model)
+        QuickTake._inference_check(image, _model)
         self._instantiate_model(_model, _engine, new_init)
         results_, time_ = self._inference(image, _model, input_size_=input_size_)
         if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
@@ -85,7 +86,7 @@ class QuickLook:
         _model  = 'age'
         _engine = TorchEngineAgePrediction
         if self.verbose: print(f'Fitting {_model} model.')
-        QuickLook._inference_check(image, _model)
+        QuickTake._inference_check(image, _model)
         self._instantiate_model(_model, _engine, new_init)
         results_, time_ = self._inference(image, _model, input_size_=input_size_)
         if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
@@ -94,7 +95,7 @@ class QuickLook:
 
 
     def launchStream(self):
-        print('Launching QuickLook!')
+        print('Launching QuickTake!')
         _NEW_INIT = False
 
         cam = cv2.VideoCapture(0)
@@ -145,7 +146,7 @@ class QuickLook:
 
 
     def LaunchCamera(self):
-        print('Launching QuickLook!')
+        print('Launching QuickTake!')
 
 
         # init models
@@ -201,7 +202,7 @@ class QuickLook:
 
 # example usage
 # if __name__ == '__main__':
-#     QL = QuickLook()
+#     QL = QuickTake()
 #     # QL.inference('None', ['genderX'])
 #     # QL.LaunchCamera()
 #     QL.launchStream()
