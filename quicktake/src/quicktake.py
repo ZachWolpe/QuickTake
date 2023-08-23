@@ -1,6 +1,245 @@
+'''
+========================================================
+QuickLook!
+
+This script houses the package build.
+
+: version: 0.0.1
+: zach wolpe, 22 Aug 23
+: zach.wolpe@medibio.com.au
+========================================================
+'''
+
+from model_architectures.AgeBuild       import *
+from model_architectures.SSRNet         import *
+from model_architectures.GenderBuild    import *
+from modules.dependencies               import *
+from modules.cv_helpers                 import *
+from modules.torch_helpers              import *
 
 
-def main():
-    print('Launching Quicktake!!')
+class QuickLook:
+    # inherit models
+    available_models_       = ['gender', 'age', 'yolov5']
+    available_input_types   = [torch.Tensor, np.ndarray, str, list]
+
+    def __init__(self, verbose:bool=False) -> None:
+        # instantiate model subclasses - avoid inheretance due to ambiguity that may arise from decouplied methods from their core concrete classes.
+        self.model_instances    = {}
+        self.verbose            = verbose
+
+    @staticmethod
+    def _inference_check(image:torch.Tensor | str | list[str]=None, model:str=None) -> dict:
+        """
+        Test the datatype passed to inference.
+        """
+        if image is not None:
+            assert type(image) in QuickLook.available_input_types, f'Image type not supported! Must be torch.Tensor, str, or list[str]. Got {type(image)}'        
+        
+        if model is not None:
+            assert model.lower() in QuickLook.available_models_, f'Unsupported model specification \"{model}\"! Must be one of: {QuickLook.available_models_}'
+        
+        return True
+
+    def _inference(self, image, model='gender', input_size_:int=64):
+        if isinstance(image, torch.Tensor) or isinstance(image, np.ndarray): 
+                                            results_, time_ = self.model_instances[model].inference(image_pixels_=image, input_size_=input_size_)
+        elif os.path.isdir(image):          results_, time_ = self.model_instances[model].inference(images_dir_=image,   input_size_=input_size_)
+        else:                               results_, time_ = self.model_instances[model].inference(image_path_=image,   input_size_=input_size_)
+        return results_, time_
+
+    def _instantiate_model(self, model='gender', instance=None, new_init=False):
+        if new_init or model not in self.model_instances.keys():
+            self.model_instances[model] = instance()   
+
+    def yolov5(self, image:torch.Tensor | str, new_init=False):
+        if isinstance(image, str) and os.path.isdir(image):
+            results     = []
+            start_time_  = time.time()
+            for img in os.listdir(image):
+                # if directory, recursively call yolov5 on each image.
+                path = os.path.join(image, img)
+                results.append(self.yolov5(path, new_init=new_init))
+            return results, time.time() - start_time_
+        _model      = 'yolov5'
+        start_time_ = time.time()
+        _engine     = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True, verbose=self.verbose)
+        self._inference_check(image)
+        self.model_instances[_model] = _engine
+        results = self.model_instances[_model](image)
+        return results, time.time() - start_time_
 
 
+    def gender(self, image:torch.Tensor | str | list[str]=None, new_init=False, input_size_:int=64):
+        _model  = 'gender'
+        _engine = TorchEngineGenderPrediction
+        if self.verbose: print(f'Fitting {_model} model.')
+        QuickLook._inference_check(image, _model)
+        self._instantiate_model(_model, _engine, new_init)
+        results_, time_ = self._inference(image, _model, input_size_=input_size_)
+        if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
+        return results_, time_
+
+
+    def age(self, image:torch.Tensor | str | list[str]=None, new_init=False, input_size_:int=64):
+        _model  = 'age'
+        _engine = TorchEngineAgePrediction
+        if self.verbose: print(f'Fitting {_model} model.')
+        QuickLook._inference_check(image, _model)
+        self._instantiate_model(_model, _engine, new_init)
+        results_, time_ = self._inference(image, _model, input_size_=input_size_)
+        if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
+        return results_, time_
+
+
+
+    def launchStream(self):
+        print('Launching QuickLook!')
+        _NEW_INIT = False
+
+        cam = cv2.VideoCapture(0)
+        while True:
+            check, frame = cam.read()
+
+            # Inference ------------------------------------->>
+            results, _ = self.yolov5(image=frame, new_init=_NEW_INIT)
+            res_df  = results.pandas().xyxy[0]
+            gyp     = generate_yolo_points(res_df)
+            for name, confidence, x0,y0,x1,y1, colour, thickness in gyp:
+                _label = [('person', name, False, False), ('confidence', confidence, True, True)]
+    
+                # extract face
+                if name == 'person':
+                    face = frame[y0:y1, x0:x1]
+
+                    # inference : age
+                    age_, _ = self.age(image=face, new_init=_NEW_INIT)
+                    _label.append(('age', age_.tolist()[0], True, True))
+            
+                    # inference on gender
+                    gender_, _ = self.gender(image=face, new_init=_NEW_INIT)
+                    _label.append(('gender', gender_, False, False))
+
+        
+                # add block and text to image
+                _label = generate_yolo_label(_label)
+                add_block_to_image(cv2, frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
+            
+            # Inference ------------------------------------->>
+
+            # stream ---------------------------------------->>
+            cv2.imshow('video', frame)
+            # stream ---------------------------------------->>
+
+            # breakpoints ----------------------------------->>
+            key         = cv2.waitKey(1)
+            breaker_    = (key == 27) or (key == ord('q'))
+            if breaker_: break
+            # breakpoints ----------------------------------->>
+
+        # terminate session
+        cam.release()
+        cv2.destroyAllWindows()
+
+
+
+
+    def LaunchCamera(self):
+        print('Launching QuickLook!')
+
+
+        # init models
+        yolov5n             = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
+        torch_model_age     = TorchEngineAgePrediction()
+        torch_model_gender  = TorchEngineGenderPrediction()
+
+        cam = cv2.VideoCapture(0)
+        while True:
+            check, frame = cam.read()
+
+            # Inference ------------------------------------->>
+            results = yolov5n(frame)
+            res_df  = results.pandas().xyxy[0]
+            gyp     = generate_yolo_points(res_df)
+            for name, confidence, x0,y0,x1,y1, colour, thickness in gyp:
+                _label = [('person', name, False, False), ('confidence', confidence, True, True)]
+    
+                # extract face
+                if name == 'person':
+                    face = frame[y0:y1, x0:x1]
+
+                    # inference on face
+                    age_, cost_time = torch_model_age.inference_pixels(face)
+                    _label.append(('age', age_.tolist()[0], True, True))
+            
+                    # inference on gender
+                    gender_, cost_time = torch_model_gender.inference_pixels(face)
+                    _label.append(('gender', gender_, False, False))
+
+        
+                # add block and text to image
+                _label = generate_yolo_label(_label)
+                add_block_to_image(cv2, frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
+            
+            # Inference ------------------------------------->>
+
+            # stream ---------------------------------------->>
+            cv2.imshow('video', frame)
+            # stream ---------------------------------------->>
+
+            # breakpoints ----------------------------------->>
+            key         = cv2.waitKey(1)
+            breaker_    = (key == 27) or (key == ord('q'))
+            if breaker_: break
+            # breakpoints ----------------------------------->>
+
+        # terminate session
+        cam.release()
+        cv2.destroyAllWindows()
+
+
+
+# example usage
+if __name__ == '__main__':
+    QL = QuickLook()
+    # QL.inference('None', ['genderX'])
+    # QL.LaunchCamera()
+    QL.launchStream()
+
+if False:
+    # test inputs
+    image_size  = 64
+    X           = torch.randn(3, 224, 224, requires_grad=False)#.to(tgp.device)
+    X_yolo      = torch.randn(1, 3, 224, 224, requires_grad=False)#.to(tgp.device)
+    image_path  = './data/random/IMG_0431.jpg'
+    image_paths = './data/random/'
+
+    print('............................................')
+    print('using torch.Tensor')
+    res, ti = QL.gender(X, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.yolov5(X_yolo, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.age(X, new_init=True)
+    print(res); print(ti)
+    print('............................................')
+
+    print('............................................')
+    print('using image path')
+    res, ti = QL.gender(image_path, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.yolov5(image_path, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.age(image_path, new_init=True)
+    print(res); print(ti)
+    print('............................................')
+
+    print('............................................')
+    print('using image directory')
+    res, ti = QL.gender(image_paths, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.yolov5(image_paths, new_init=True)
+    print(res); print(ti)
+    res, ti = QL.age(image_paths, new_init=True)
+    print(res); print(ti)
+    print('............................................')

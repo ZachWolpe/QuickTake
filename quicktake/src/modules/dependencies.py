@@ -21,6 +21,9 @@ from torch import nn
 import torchvision
 import torch
 
+# machine learning : external
+from deepface import DeepFace
+
 
 # numeric
 import pandas as pd
