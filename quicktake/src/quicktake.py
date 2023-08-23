@@ -144,67 +144,9 @@ class QuickTake:
 
 
 
-
-    def LaunchCamera(self):
-        print('Launching QuickTake!')
-
-
-        # init models
-        yolov5n             = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
-        torch_model_age     = TorchEngineAgePrediction()
-        torch_model_gender  = TorchEngineGenderPrediction()
-
-        cam = cv2.VideoCapture(0)
-        while True:
-            check, frame = cam.read()
-
-            # Inference ------------------------------------->>
-            results = yolov5n(frame)
-            res_df  = results.pandas().xyxy[0]
-            gyp     = generate_yolo_points(res_df)
-            for name, confidence, x0,y0,x1,y1, colour, thickness in gyp:
-                _label = [('person', name, False, False), ('confidence', confidence, True, True)]
-    
-                # extract face
-                if name == 'person':
-                    face = frame[y0:y1, x0:x1]
-
-                    # inference on face
-                    age_, cost_time = torch_model_age.inference_pixels(face)
-                    _label.append(('age', age_.tolist()[0], True, True))
-            
-                    # inference on gender
-                    gender_, cost_time = torch_model_gender.inference_pixels(face)
-                    _label.append(('gender', gender_, False, False))
-
-        
-                # add block and text to image
-                _label = generate_yolo_label(_label)
-                add_block_to_image(cv2, frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
-            
-            # Inference ------------------------------------->>
-
-            # stream ---------------------------------------->>
-            cv2.imshow('video', frame)
-            # stream ---------------------------------------->>
-
-            # breakpoints ----------------------------------->>
-            key         = cv2.waitKey(1)
-            breaker_    = (key == 27) or (key == ord('q'))
-            if breaker_: break
-            # breakpoints ----------------------------------->>
-
-        # terminate session
-        cam.release()
-        cv2.destroyAllWindows()
-
-
-
 # example usage
 # if __name__ == '__main__':
 #     QL = QuickTake()
-#     # QL.inference('None', ['genderX'])
-#     # QL.LaunchCamera()
 #     QL.launchStream()
 
 # if False:
