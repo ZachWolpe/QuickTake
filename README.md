@@ -99,11 +99,11 @@ for _label, x0,y0,x1,y1, colour, thickness, results, res_df, age_, gender_ in qt
 
 The result is an image with the bounding boxes and labels, confidence (in yolo prediction), age, and gender if a person is detected.
 
-[Example output: a person is detected and thus age, gender are estimated](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_dav_2.png).
+![Example output: a person is detected and thus age, gender are estimated](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_dav_2.png).
 
 The staged output is also useful:
 
-[Example of the `YoloV5` detection boundaries](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_ct_2.png).
+![Example of the `YoloV5` detection boundaries](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_ct_2.png).
 
 
 For a more comprehensive _example_ directory. 
