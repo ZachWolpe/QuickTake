@@ -44,7 +44,18 @@ Each model is designed to handle $3$ types of input:
 - `image path (str)`: path to an image. Used when processing a single image.
 - `image directory (str)`: path to a directory of images. Used when processing a directory of images.
 
-#### Examples
+### Expected Use
+
+`Gender` and `age` determination models are trained on faces. They work fine on a larger image, however, will fail to make multiple predictions in the case of multiple faces in a single image.
+
+The API is currently designed to chain models:
+
+1. `yolo` is used to identify objects.
+2. `IF` a person is detected, the `gender` and `age` models are used to make predictions.
+
+This is neatly bundled in the `QuickTake.yolo_loop()` method.
+
+#### Getting Started
 
 Launch a webcam stream:
 
@@ -55,42 +66,51 @@ QL.launchStream()
 
 _*Note*_: Each model returns the results `results_` as well as the runtime `time_`.
 
-Example parameters:
+Run on a single frame:
 
 ```python
-image_size  = 64
-X           = torch.randn(3, 224, 224, requires_grad=False)#.to(tgp.device)
-X_yolo      = torch.randn(1, 3, 224, 224, requires_grad=False)#.to(tgp.device)
-image_path  = './data/random/dave.png'
-image_paths = './data/random/'
+from IPython.display import display
+from PIL import Image
+import cv2
+
+# example images
+img = './data/random/dave.png'
+
+# to avoid distractions
+import warnings
+warnings.filterwarnings('ignore')
+
+# init module
+from quicktake import QuickTake
+qt = QuickTake()
+
+# extract frame from raw image path
+frame = qt.read_image(img)
 ```
 
-Process a torch.Tensor:
+We can now fit `qt.age(<frame>)` or `qt.gender(<frame>)` on the frame. Alternatively we can cycle through the objects detected  by `yolo` and if a person is detected, fit `qt.age()` and `qt.gender()`:
 
 ```python
-results_, time_ = QL.gender(X, new_init=True)
-results_, time_ = QL.yolov5(X_yolo, new_init=True)
-results_, time_ = QL.age(X, new_init=True)
+# generate points
+for _label, x0,y0,x1,y1, colour, thickness, results, res_df, age_, gender_ in qt.yolo_loop(frame):
+    _label = QuickTake.generate_yolo_label(_label)
+    QuickTake.add_block_to_image(frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
 ```
 
-Process a single image (path):
+The result is an image with the bounding boxes and labels, confidence (in yolo prediction), age, and gender if a person is detected.
 
-```python
-results_, time_ = QL.gender(image_path, new_init=True)
-results_, time_ = QL.yolov5(image_path, new_init=True)
-results_, time_ = QL.age(image_path, new_init=True)
-```
+[Example output: a person is detected and thus age, gender are estimated](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_dav_2.png).
 
-Process a directory of images:
+The staged output is also useful:
 
-```python
-results_, time_ = QL.gender(image_paths, new_init=True)
-results_, time_ = QL.yolov5(image_paths, new_init=True)
-results_, time_ = QL.age(image_paths, new_init=True)
-```
+[Example of the `YoloV5` detection boundaries](https://github.com/ZachWolpe/QuickTake/blob/main/data/output_frames/result_ct_2.png).
 
+
+For a more comprehensive _example_ directory. 
 
 
 ## Future
 
-We have many more models & deployments in the pipeline. If you wish to contribute, please email me @zachcolinwolpe@gmail.com!
+I have many more models; deployment methods & applications in the pipeline.
+
+If you wish to contribute, please email me _@zachcolinwolpe@gmail.com_.
