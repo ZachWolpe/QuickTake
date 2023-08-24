@@ -23,10 +23,10 @@ Many thanks to the original author!
 
 
 from modules.dependencies  import *
-from modules.torch_helpers import *
+from modules.torch_engine import *
 
 
-class TorchEngineGenderPrediction(TorchHelpers):
+class TorchEngineGenderPrediction(TorchEngine):
 
     def __init__(self, model_weights='./model_weights/face_gender_classification_transfer_learning_with_ResNet18.pth') -> None:
         # fetch device

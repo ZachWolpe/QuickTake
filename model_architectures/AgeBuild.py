@@ -12,11 +12,11 @@ Wrapper to instantiate Age | SSRNet transfer learning model, load weights & run 
 
 from model_architectures.SSRNet import *
 from modules.dependencies       import *
-from modules.torch_helpers      import *
+from modules.torch_engine      import *
 
 
 
-class TorchEngineAgePrediction(TorchHelpers):
+class TorchEngineAgePrediction(TorchEngine):
     # note: magic values can be explained here: https://pytorch.org/hub/pytorch_vision_mobilenet_v2/
     _normalize_mean = [0.485, 0.456, 0.406]
     _normalize_std  = [0.229, 0.224, 0.225]

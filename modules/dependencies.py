@@ -36,6 +36,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import plotly.express as px
 from PIL import Image
+import PIL
 
 # pythonic
 import argparse
