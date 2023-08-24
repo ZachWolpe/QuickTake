@@ -6,12 +6,12 @@ Helper functions for OpenCV.
 : zach.wolpe@medibio.com.au
 ========================================================
 '''
-
+import cv2
 # opencv helpers ------------------------------------------------------------------------->>
 class CVHelpers:
 # add block to image
     @staticmethod
-    def add_block_to_image(cv2, image, text, x0,y0,x1,y1, colour=(255,0,0), thickness=3):
+    def add_block_to_image(image, text, x0,y0,x1,y1, colour=(255,0,0), thickness=3):
         """updates image inplace"""
         text_padding = 20
         try:

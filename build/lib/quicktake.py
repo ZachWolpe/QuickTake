@@ -125,30 +125,12 @@ class QuickTake(TorchEngine, CVHelpers):
         cam = cv2.VideoCapture(0)
         while True:
             check, frame = cam.read()
-            for _label, x0,y0,x1,y1, colour, thickness, results, res_df, age_, gender_ in self.yolo_loop(frame):
-                
+        
             # Inference ------------------------------------->>
-            # results, _  = self.yolov5(image=frame, new_init=_NEW_INIT)
-            # res_df      = results.pandas().xyxy[0]
-            # gyp         = QuickTake.generate_yolo_points(res_df)
-            # for name, confidence, x0,y0,x1,y1, colour, thickness in gyp:
-            #     _label = [('person', name, False, False), ('confidence', confidence, True, True)]
-    
-            #     # extract face
-            #     if name == 'person':
-            #         face = frame[y0:y1, x0:x1]
-
-            #         # inference : age
-            #         age_, _ = self.age(image=face, new_init=_NEW_INIT)
-            #         _label.append(('age', age_.tolist()[0], True, True))
-            
-            #         # inference on gender
-            #         gender_, _ = self.gender(image=face, new_init=_NEW_INIT)
-            #         _label.append(('gender', gender_, False, False))
-
+            for _label, x0,y0,x1,y1, colour, thickness, results, res_df, age_, gender_ in self.yolo_loop(frame):       
                 # add block and text to image
                 _label = QuickTake.generate_yolo_label(_label)
-                QuickTake.add_block_to_image(cv2, frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
+                QuickTake.add_block_to_image(frame, _label, x0,y0,x1,y1, colour=colour, thickness=thickness)
             # Inference ------------------------------------->>
 
             # stream ---------------------------------------->>
