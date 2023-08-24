@@ -61,7 +61,7 @@ Example parameters:
 image_size  = 64
 X           = torch.randn(3, 224, 224, requires_grad=False)#.to(tgp.device)
 X_yolo      = torch.randn(1, 3, 224, 224, requires_grad=False)#.to(tgp.device)
-image_path  = './data/random/IMG_0431.jpg'
+image_path  = './data/random/dave.png'
 image_paths = './data/random/'
 ```
 
