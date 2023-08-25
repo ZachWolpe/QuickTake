@@ -10,7 +10,7 @@ project_urls = {
 
 setuptools.setup(
     name                            = "quicktake",
-    version                         = "0.0.13",
+    version                         = "0.0.14",
     author                          = "Zach Wolpe",
     author_email                    = "zachcolinwolpe@gmail.com",
     description                     = "Off-the-shelf computer vision ML models. Yolov5, gender and age determination.",
