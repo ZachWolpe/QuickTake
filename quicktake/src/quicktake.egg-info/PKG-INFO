@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: quicktake
-Version: 0.0.12
+Version: 0.0.13
 Summary: Off-the-shelf computer vision ML models. Yolov5, gender and age determination.
 Author: Zach Wolpe
 Author-email: zachcolinwolpe@gmail.com

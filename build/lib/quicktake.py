@@ -29,6 +29,14 @@ class QuickTake(TorchEngine, CVHelpers):
         self.model_instances    = {}
         self.verbose            = verbose
 
+
+    def attach_relative_path(self):
+        """Attach relative path to locate model dirs."""
+        relative_path     = os.path.abspath(__file__)
+        relative_path_2   = '/'.join(relative_path.split('/')[:-1])
+        self._gender_path = f"{relative_path_2}/model_weights/face_gender_classification_transfer_learning_with_ResNet18.pth"
+        self._age_path    = f"{relative_path_2}/model_weights/model_Adam_MSELoss_LRDecay_weightDecay0.0001_batch50_lr0.0005_epoch90_64x64.pth"
+
     @staticmethod
     def _inference_check(image:torch.Tensor | str | list[str]=None, model:str=None) -> dict:
         """
@@ -49,9 +57,9 @@ class QuickTake(TorchEngine, CVHelpers):
         else:                               results_, time_ = self.model_instances[model].inference(image_path_=image,   input_size_=input_size_)
         return results_, time_
 
-    def _instantiate_model(self, model='gender', instance=None, new_init=False):
+    def _instantiate_model(self, model='gender', model_weight_path=None, instance=None, new_init=False):
         if new_init or model not in self.model_instances.keys():
-            self.model_instances[model] = instance()   
+            self.model_instances[model] = instance(model_weights=model_weight_path)
 
     def yolov5(self, image:torch.Tensor | str, new_init=False):
         if isinstance(image, str) and os.path.isdir(image):
@@ -72,22 +80,25 @@ class QuickTake(TorchEngine, CVHelpers):
 
 
     def gender(self, image:torch.Tensor | str | list[str]=None, new_init=False, input_size_:int=64):
-        _model  = 'gender'
-        _engine = TorchEngineGenderPrediction
+        _model   = 'gender'
+        _engine  = TorchEngineGenderPrediction
+        _weights = self._gender_path
         if self.verbose: print(f'Fitting {_model} model.')
         QuickTake._inference_check(image, _model)
-        self._instantiate_model(_model, _engine, new_init)
+        self._instantiate_model(_model, _weights, _engine, new_init)
         results_, time_ = self._inference(image, _model, input_size_=input_size_)
         if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
         return results_, time_
 
 
     def age(self, image:torch.Tensor | str | list[str]=None, new_init=False, input_size_:int=64):
-        _model  = 'age'
-        _engine = TorchEngineAgePrediction
+        _model   = 'age'
+        _engine  = TorchEngineAgePrediction
+        _weights = self._gender_path
+
         if self.verbose: print(f'Fitting {_model} model.')
         QuickTake._inference_check(image, _model)
-        self._instantiate_model(_model, _engine, new_init)
+        self._instantiate_model(_model, _weights, _engine, new_init)
         results_, time_ = self._inference(image, _model, input_size_=input_size_)
         if self.verbose: print('Model fit successfully in {} seconds!'.format(time_))
         return results_, time_
